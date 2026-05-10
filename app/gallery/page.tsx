@@ -8,7 +8,10 @@ import {
   Trash2, 
   MoreVertical, 
   ExternalLink,
-  Loader2 
+  Loader2,
+  Music,
+  PlayCircle,
+  FileIcon
 } from "lucide-react";
 
 interface MediaItem {
@@ -43,7 +46,6 @@ export default function GalleryPage() {
 
   const handleDelete = async (id: string, blobName: string) => {
     if (!confirm("Are you sure you want to permanently delete this media?")) return;
-
     setProcessingId(id);
     try {
       const response = await fetch("/api/delete", {
@@ -63,7 +65,6 @@ export default function GalleryPage() {
   const handleEdit = async (item: MediaItem) => {
     const newName = prompt("Rename asset:", item.fileName);
     if (!newName || newName === item.fileName) return;
-
     setProcessingId(item.id);
     try {
       const response = await fetch("/api/update", {
@@ -78,6 +79,55 @@ export default function GalleryPage() {
     } finally {
       setProcessingId(null);
     }
+  };
+
+  // Helper to render the appropriate native player
+  const renderMediaPreview = (item: MediaItem) => {
+    const type = item.fileType.toLowerCase();
+
+    if (type.startsWith("image")) {
+      return (
+        <img
+          src={item.url}
+          alt={item.fileName}
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+        />
+      );
+    }
+
+    if (type.startsWith("video")) {
+      return (
+        <video 
+          controls 
+          className="w-full h-full object-cover bg-slate-900"
+          preload="metadata"
+        >
+          <source src={item.url} type={item.fileType} />
+          Your browser does not support the video tag.
+        </video>
+      );
+    }
+
+    if (type.startsWith("audio")) {
+      return (
+        <div className="w-full h-full flex flex-col items-center justify-center bg-slate-50 p-6">
+          <Music size={40} className="text-blue-500 mb-4 animate-pulse" />
+          <audio controls className="w-full h-10 brightness-95">
+            <source src={item.url} type={item.fileType} />
+          </audio>
+        </div>
+      );
+    }
+
+    // Default for PDF or other files
+    return (
+      <div className="w-full h-full flex flex-col items-center justify-center bg-indigo-50/50 text-indigo-400">
+        <FileIcon size={48} strokeWidth={1.5} />
+        <span className="text-[10px] font-bold tracking-widest uppercase mt-4 opacity-60">
+          {type.includes('pdf') ? 'PDF Document' : 'System File'}
+        </span>
+      </div>
+    );
   };
 
   return (
@@ -106,7 +156,7 @@ export default function GalleryPage() {
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
           {media.map((item, index) => (
             <div
               key={item.id}
@@ -114,22 +164,11 @@ export default function GalleryPage() {
               className="group bg-white/60 backdrop-blur-2xl border border-white/50 rounded-4xl overflow-hidden shadow-xl hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 animate-in fade-in zoom-in"
             >
               {/* Media Preview Container */}
-              <div className="relative h-64 w-full bg-slate-100 overflow-hidden">
-                {item.fileType.startsWith("image") ? (
-                  <img
-                    src={item.url}
-                    alt={item.fileName}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
-                ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center bg-indigo-50/50 text-indigo-400">
-                    <FileText size={48} strokeWidth={1.5} />
-                    <span className="text-[10px] font-bold tracking-widest uppercase mt-4 opacity-60">System Data</span>
-                  </div>
-                )}
+              <div className="relative h-72 w-full bg-slate-100 overflow-hidden">
+                {renderMediaPreview(item)}
                 
                 {/* Action Overlay */}
-                <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                   <a href={item.url} target="_blank" rel="noopener noreferrer" className="p-2 bg-white/90 backdrop-blur-md rounded-xl text-slate-600 hover:text-blue-600 shadow-sm transition-colors">
                     <ExternalLink size={18} />
                   </a>
@@ -156,15 +195,15 @@ export default function GalleryPage() {
                   <button
                     onClick={() => handleEdit(item)}
                     disabled={processingId === item.id}
-                    className="flex-1 flex items-center justify-center gap-2 bg-white/50 border border-slate-200 text-slate-700 font-bold py-4 rounded-2xl active:scale-95 transition-all hover:bg-white hover:border-blue-400 hover:text-blue-600"
+                    className="flex-1 flex items-center justify-center gap-2 bg-white/50 border border-slate-200 text-slate-700 font-bold py-4 rounded-2xl active:scale-95 transition-all hover:bg-white hover:border-blue-400 hover:text-blue-600 disabled:opacity-50"
                   >
                     <Edit3 size={16} />
-                    Edit
+                    Rename
                   </button>
                   <button
                     onClick={() => handleDelete(item.id, item.blobName)}
                     disabled={processingId === item.id}
-                    className="flex-1 flex items-center justify-center gap-2 bg-red-50/50 border border-red-100 text-red-600 font-bold py-4 rounded-2xl active:scale-95 transition-all hover:bg-red-600 hover:text-white hover:border-transparent"
+                    className="flex-1 flex items-center justify-center gap-2 bg-red-50/50 border border-red-100 text-red-600 font-bold py-4 rounded-2xl active:scale-95 transition-all hover:bg-red-600 hover:text-white hover:border-transparent disabled:opacity-50"
                   >
                     {processingId === item.id ? (
                       <Loader2 size={16} className="animate-spin" />

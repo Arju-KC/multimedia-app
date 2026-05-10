@@ -16,7 +16,7 @@ export default function Navbar() {
     <nav className="fixed top-0 z-50 w-full px-6 py-6 pointer-events-none">
       <div className="max-w-6xl mx-auto bg-white/40 backdrop-blur-2xl border border-white/50 rounded-2xl px-8 py-4 flex justify-between items-center shadow-lg shadow-slate-200/20 pointer-events-auto transition-all">
         <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-          Pulse <span className="text-blue-600">Gallery</span>
+          Cloud <span className="text-blue-600">Gallery</span>
         </h1>
 
         <div className="flex space-x-8">

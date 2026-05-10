@@ -46,7 +46,7 @@ export default function Home() {
         <footer className="mt-12 flex flex-col sm:flex-row gap-4 justify-center">
           <Link href="/gallery" className="no-underline">
             <button className="w-full sm:w-auto px-10 py-5 bg-blue-600 text-white font-bold rounded-2xl flex items-center justify-center gap-2 transition-transform active:scale-95 shadow-lg shadow-blue-600/20">
-              Get Started <ArrowRight size={18} />
+              Browse gallery <ArrowRight size={18} />
             </button>
           </Link>
 
